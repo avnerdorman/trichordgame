@@ -106,6 +106,15 @@
       { id: "3-12", label: "048" }
     ];
 
+    // Helper functions to disable/enable all buttons.
+    function disableAllButtons() {
+      document.querySelectorAll('button').forEach(button => button.disabled = true);
+    }
+
+    function enableAllButtons() {
+      document.querySelectorAll('button').forEach(button => button.disabled = false);
+    }
+
     // Convert MIDI note number to frequency.
     function midiToFrequency(midi) {
       return 440 * Math.pow(2, (midi - 69) / 12);
@@ -139,7 +148,8 @@
       // Remove any non-digit characters, then split the string.
       const digits = trichordLabel.replace(/\D/g, '').split('');
       
-      const noteDuration = 1; // 1 second for each note
+      const noteDuration = 1; // seconds for each note
+      const totalDuration = noteDuration * digits.length;
       const currentTime = audioCtx.currentTime;
       
       digits.forEach((digit, index) => {
@@ -147,14 +157,26 @@
         const frequency = midiToFrequency(midiNote);
         playTone(frequency, currentTime + index * noteDuration, noteDuration);
       });
+      
+      return totalDuration;
+    }
+
+    // Plays the trichord and locks the UI until playback is finished.
+    function playTrichordAndLock(trichordLabel) {
+      disableAllButtons();
+      const totalDuration = playTrichordSound(trichordLabel);
+      // Re-enable buttons after playback.
+      setTimeout(() => {
+        enableAllButtons();
+      }, totalDuration * 1000);
     }
 
     // Updated playTrichord function which plays the audio without a notification.
     function playTrichord(trichord) {
       currentTrichord = trichord;
-      playTrichordSound(trichord.label);
-      // Clear any previous feedback.
+      // Clear previous feedback.
       document.getElementById("feedback").textContent = "";
+      playTrichordAndLock(trichord.label);
     }
 
     // Handle Play button click: choose a random trichord.
@@ -169,7 +191,7 @@
     const repeatButton = document.getElementById('repeatButton');
     repeatButton.addEventListener('click', () => {
       if (currentTrichord) {
-        playTrichordSound(currentTrichord.label);
+        playTrichordAndLock(currentTrichord.label);
       } else {
         document.getElementById("feedback").textContent = "No trichord to repeat. Please click Play first.";
       }
