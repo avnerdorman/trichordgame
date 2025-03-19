@@ -77,10 +77,13 @@
   </div>
 
   <script>
+    // Global AudioContext (created upon first user interaction)
+    let audioCtx = null;
+    
     // Holds the currently selected trichord.
     let currentTrichord = null;
     
-    // Array of available trichord data attributes.
+    // Array of available trichord objects.
     const trichords = [
       { id: "3-1", label: "012" },
       { id: "3-2", label: "013" },
@@ -96,10 +99,54 @@
       { id: "3-12", label: "048" }
     ];
 
-    // Simulate the action of playing a trichord.
+    // Convert MIDI note number to frequency.
+    function midiToFrequency(midi) {
+      return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+
+    // Function to play a single tone for a given duration.
+    function playTone(frequency, startTime, duration) {
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    }
+
+    // Play the trichord sequentially, each note 1 second apart.
+    function playTrichordSound(trichordLabel) {
+      // Ensure AudioContext is created.
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      
+      // Base MIDI note for 0 is 60 (Middle C).
+      const baseMidi = 60;
+      
+      // Remove any non-digit characters, then split the string.
+      const digits = trichordLabel.replace(/\D/g, '').split('');
+      
+      const noteDuration = 1; // 1 second for each note
+      const currentTime = audioCtx.currentTime;
+      
+      digits.forEach((digit, index) => {
+        const midiNote = baseMidi + parseInt(digit, 10);
+        const frequency = midiToFrequency(midiNote);
+        playTone(frequency, currentTime + index * noteDuration, noteDuration);
+      });
+    }
+
+    // Updated playTrichord function which also plays the audio.
     function playTrichord(trichord) {
-      // In a full implementation, you would trigger audio playback here.
+      // Display which trichord is playing (for debugging/demo purposes)
       alert("Playing trichord: " + trichord.label);
+      playTrichordSound(trichord.label);
     }
 
     // Handle Play button click: choose a random trichord.
@@ -126,7 +173,6 @@
     trichordButtons.forEach(button => {
       button.addEventListener('click', () => {
         const selectedTrichordId = button.getAttribute('data-trichord');
-        // Here, compare the selected trichord to the current trichord.
         if (currentTrichord && currentTrichord.id === selectedTrichordId) {
           alert("Correct! You selected " + currentTrichord.label);
         } else {
