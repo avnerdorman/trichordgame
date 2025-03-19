@@ -51,6 +51,11 @@
     .trichord-button:hover {
       background-color: #e0e0e0;
     }
+    .feedback {
+      margin-top: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -74,6 +79,8 @@
       <button class="trichord-button" data-trichord="3-11">037</button>
       <button class="trichord-button" data-trichord="3-12">048</button>
     </div>
+    <!-- Feedback box -->
+    <div id="feedback" class="feedback"></div>
   </div>
 
   <script>
@@ -142,11 +149,12 @@
       });
     }
 
-    // Updated playTrichord function which also plays the audio.
+    // Updated playTrichord function which plays the audio without a notification.
     function playTrichord(trichord) {
-      // Display which trichord is playing (for debugging/demo purposes)
-      alert("Playing trichord: " + trichord.label);
+      currentTrichord = trichord;
       playTrichordSound(trichord.label);
+      // Clear any previous feedback.
+      document.getElementById("feedback").textContent = "";
     }
 
     // Handle Play button click: choose a random trichord.
@@ -154,17 +162,16 @@
     playButton.addEventListener('click', () => {
       // Choose a random index from the trichords array.
       const randomIndex = Math.floor(Math.random() * trichords.length);
-      currentTrichord = trichords[randomIndex];
-      playTrichord(currentTrichord);
+      playTrichord(trichords[randomIndex]);
     });
 
     // Handle Repeat button click: play the current trichord if it exists.
     const repeatButton = document.getElementById('repeatButton');
     repeatButton.addEventListener('click', () => {
       if (currentTrichord) {
-        playTrichord(currentTrichord);
+        playTrichordSound(currentTrichord.label);
       } else {
-        alert("No trichord to repeat. Please click Play first.");
+        document.getElementById("feedback").textContent = "No trichord to repeat. Please click Play first.";
       }
     });
 
@@ -173,10 +180,11 @@
     trichordButtons.forEach(button => {
       button.addEventListener('click', () => {
         const selectedTrichordId = button.getAttribute('data-trichord');
+        const feedbackEl = document.getElementById("feedback");
         if (currentTrichord && currentTrichord.id === selectedTrichordId) {
-          alert("Correct! You selected " + currentTrichord.label);
+          feedbackEl.textContent = "Correct!";
         } else {
-          alert("Incorrect. You selected " + button.textContent);
+          feedbackEl.textContent = "Try again";
         }
       });
     });
