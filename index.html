@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trichord Identification Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .button-group {
+      margin-bottom: 20px;
+    }
+    .play-button, .repeat-button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      margin: 5px;
+      cursor: pointer;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 5px;
+    }
+    .trichord-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+    }
+    .trichord-button {
+      padding: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fafafa;
+      transition: background-color 0.3s;
+    }
+    .trichord-button:hover {
+      background-color: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Trichord Identification Game</h1>
+    <div class="button-group">
+      <button id="playButton" class="play-button">Play</button>
+      <button id="repeatButton" class="repeat-button">Repeat</button>
+    </div>
+    <div class="trichord-buttons">
+      <button class="trichord-button" data-trichord="3-1">012</button>
+      <button class="trichord-button" data-trichord="3-2">013</button>
+      <button class="trichord-button" data-trichord="3-3">014</button>
+      <button class="trichord-button" data-trichord="3-4">024</button>
+      <button class="trichord-button" data-trichord="3-5">015</button>
+      <button class="trichord-button" data-trichord="3-6">025</button>
+      <button class="trichord-button" data-trichord="3-7">016</button>
+      <button class="trichord-button" data-trichord="3-8">026</button>
+      <button class="trichord-button" data-trichord="3-9">036</button>
+      <button class="trichord-button" data-trichord="3-10">027</button>
+      <button class="trichord-button" data-trichord="3-11">037</button>
+      <button class="trichord-button" data-trichord="3-12">048</button>
+    </div>
+  </div>
+
+  <script>
+    // Holds the currently selected trichord.
+    let currentTrichord = null;
+    
+    // Array of available trichord data attributes.
+    const trichords = [
+      { id: "3-1", label: "012" },
+      { id: "3-2", label: "013" },
+      { id: "3-3", label: "014" },
+      { id: "3-4", label: "024" },
+      { id: "3-5", label: "015" },
+      { id: "3-6", label: "025" },
+      { id: "3-7", label: "016" },
+      { id: "3-8", label: "026" },
+      { id: "3-9", label: "036" },
+      { id: "3-10", label: "027" },
+      { id: "3-11", label: "037" },
+      { id: "3-12", label: "048" }
+    ];
+
+    // Simulate the action of playing a trichord.
+    function playTrichord(trichord) {
+      // In a full implementation, you would trigger audio playback here.
+      alert("Playing trichord: " + trichord.label);
+    }
+
+    // Handle Play button click: choose a random trichord.
+    const playButton = document.getElementById('playButton');
+    playButton.addEventListener('click', () => {
+      // Choose a random index from the trichords array.
+      const randomIndex = Math.floor(Math.random() * trichords.length);
+      currentTrichord = trichords[randomIndex];
+      playTrichord(currentTrichord);
+    });
+
+    // Handle Repeat button click: play the current trichord if it exists.
+    const repeatButton = document.getElementById('repeatButton');
+    repeatButton.addEventListener('click', () => {
+      if (currentTrichord) {
+        playTrichord(currentTrichord);
+      } else {
+        alert("No trichord to repeat. Please click Play first.");
+      }
+    });
+
+    // Add click events for trichord buttons.
+    const trichordButtons = document.querySelectorAll('.trichord-button');
+    trichordButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const selectedTrichordId = button.getAttribute('data-trichord');
+        // Here, compare the selected trichord to the current trichord.
+        if (currentTrichord && currentTrichord.id === selectedTrichordId) {
+          alert("Correct! You selected " + currentTrichord.label);
+        } else {
+          alert("Incorrect. You selected " + button.textContent);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
